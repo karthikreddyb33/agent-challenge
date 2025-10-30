@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { wallet: string } }
+  context: { params: Promise<{ wallet: string }> }
 ) {
   try {
-    const { wallet } = context.params;
+    const { wallet } = await context.params;
 
     if (!wallet) {
       return NextResponse.json(
@@ -14,13 +14,16 @@ export async function GET(
       );
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-    const response = await fetch(`${backendUrl}/api/wallet_activity/${wallet}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const backendUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+    const response = await fetch(
+      `${backendUrl}/api/wallet_activity/${wallet}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
@@ -32,7 +35,12 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching wallet activity:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch wallet activity' },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch wallet activity',
+      },
       { status: 500 }
     );
   }
