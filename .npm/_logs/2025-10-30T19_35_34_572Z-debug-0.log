@@ -1,0 +1,34 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@11.6.1
+2 info using node@v24.11.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/app/.npmrc
+5 silly config load:file:/usr/local/etc/npmrc
+6 verbose title npm start
+7 verbose argv "start"
+8 verbose logfile logs-max:10 dir:/app/.npm/_logs/2025-10-30T19_35_34_572Z-
+9 verbose logfile /app/.npm/_logs/2025-10-30T19_35_34_572Z-debug-0.log
+10 silly logfile start cleaning logs, removing 1 files
+11 silly logfile done cleaning log files
+12 verbose stack Error: command failed
+12 verbose stack     at promiseSpawn (/usr/local/lib/node_modules/npm/node_modules/@npmcli/promise-spawn/lib/index.js:22:22)
+12 verbose stack     at spawnWithShell (/usr/local/lib/node_modules/npm/node_modules/@npmcli/promise-spawn/lib/index.js:124:10)
+12 verbose stack     at promiseSpawn (/usr/local/lib/node_modules/npm/node_modules/@npmcli/promise-spawn/lib/index.js:12:12)
+12 verbose stack     at runScriptPkg (/usr/local/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/run-script-pkg.js:79:13)
+12 verbose stack     at runScript (/usr/local/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/run-script.js:9:12)
+12 verbose stack     at #run (/usr/local/lib/node_modules/npm/lib/commands/run.js:135:13)
+12 verbose stack     at async RunScript.exec (/usr/local/lib/node_modules/npm/lib/commands/run.js:44:7)
+12 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:208:9)
+12 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:67:5)
+13 verbose pkgid starter@0.1.0
+14 error path /app
+15 error command failed
+16 error signal SIGTERM
+17 error command sh -c npm run start:ui
+18 verbose cwd /app
+19 verbose os Linux 5.15.167.4-microsoft-standard-WSL2
+20 verbose node v24.11.0
+21 verbose npm  v11.6.1
+22 verbose exit 1
+23 verbose code 1
+24 error A complete log of this run can be found in: /app/.npm/_logs/2025-10-30T19_35_34_572Z-debug-0.log

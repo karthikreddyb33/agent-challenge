@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: nosana-backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nosana-frontend
+    ports:
+      - "3000:3000"
+      - "4111:4111"
+    env_file: .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
