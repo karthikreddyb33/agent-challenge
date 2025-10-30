@@ -1,13 +1,159 @@
-# Builders' Challenge #3: AI Agents 102
-**Presented by Nosana and Mastra**
+# 🛰️ Solana DeFi Sentinel
+AI-Powered Blockchain Risk Detection Agent
 
-![Agent](./assets/NosanaBuildersChallenge03.jpg)
+Built for Nosana Agents 102 Challenge
 
-## Welcome to the AI Agent Challenge
+An intelligent AI agent that monitors Solana wallets, analyzes token safety, and detects on-chain risks in real-time — powered by Mastra Agents, FastAPI, and Next.js, and deployed on the Nosana decentralized compute network.
 
-Build and deploy intelligent AI agents using the **Mastra framework** on the **Nosana decentralized compute network**. Whether you're a beginner or an experienced developer, this challenge has something for everyone!
+## 🚀 Overview
 
-## 🎯 Challenge Overview
+Solana DeFi Sentinel is a next-generation decentralized intelligence system designed to enhance security in the Solana DeFi ecosystem. It continuously monitors wallets, token movements, and liquidity conditions, then uses AI-driven risk evaluation to detect suspicious activity such as rug pulls, liquidity drains, or ownership concentration.
+
+This project demonstrates real-time AI orchestration, MCP tools integration, and live frontend synchronization — fully deployed and containerized for the Nosana network.
+
+## 🧩 Architecture
+
+```
+ ┌────────────────────────────┐
+ │        Frontend (Next.js) │
+ │  Tailwind UI + Wallet Form │
+ │      Risk Dashboard +      │
+ │     Live Alerts/Charts     │
+ └────────────┬───────────────┘
+              │ REST / WS
+ ┌────────────▼───────────────┐
+ │     Backend (FastAPI)      │
+ │   Mastra Agent Orchestration│
+ │   Coordinator + 3 Subagents │
+ │  ├─ Transaction Monitor     │
+ │  ├─ Token Forensics         │
+ │  └─ Risk Advisor (AI)       │
+ └────────────┬───────────────┘
+              │ MCP Tools
+ ┌────────────▼───────────────┐
+ │ Solana Data Fetcher        │
+ │ Liquidity Checker          │
+ │ Contract Scanner           │
+ └────────────┬───────────────┘
+              │
+       Solana RPC / APIs
+```
+
+## ⚙️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15 + TailwindCSS + Chart.js |
+| **Backend** | FastAPI (Python) + WebSockets |
+| **AI Framework** | Mastra Agent + Tool Calling |
+| **MCP Tools** | Custom-built: Wallet Fetcher, Liquidity Checker, Contract Scanner |
+| **Model Endpoint** | Nosana Hosted LLM (qwen3:8b) |
+| **Deployment** | Docker + Nosana Job Network |
+| **Language** | Python + TypeScript |
+
+## 🧠 Features
+
+- 🔍 **Wallet Risk Analysis** — Analyze any Solana wallet's tokens, liquidity, and holder patterns.
+- ⚡ **Real-Time Alerts** — Detect sudden large transactions or liquidity drains instantly.
+- 🧰 **Three Specialist Agents**:
+  - Transaction Monitor – Tracks suspicious activity.
+  - Token Forensics – Evaluates token metadata, holder concentration, and liquidity.
+  - Risk Advisor – Provides AI-generated risk summaries and recommendations.
+- 💬 **Explainable AI** — Each risk score includes reasoning & confidence via the explain engine.
+- 📊 **Interactive Dashboard** — Visualize token risks, transactions, and trust score dynamically.
+- 🌐 **Nosana Ready** — Fully containerized for decentralized compute deployment.
+
+## 🔐 Environment Variables
+
+Create a `.env` file (based on `.env.example`):
+
+```env
+OLLAMA_API_URL=https://3yt39qx97wc9hqwwmylrphi4jsxrngjzxnjakkybnxbw.node.k8s.prd.nos.ci/api
+MODEL_NAME_AT_ENDPOINT=qwen3:8b
+OPENAI_API_KEY=      # optional fallback
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+PORT=3000
+NODE_ENV=production
+```
+
+## 🧰 Local Setup & Run
+
+### 1️⃣ Clone and Install
+
+```bash
+git clone https://github.com/YOUR_GITHUB_USERNAME/agent-challenge.git
+cd agent-challenge
+cp .env.example .env
+pnpm install
+```
+
+### 2️⃣ Start the Application
+
+```bash
+pnpm run dev:ui       # Frontend (Next.js)
+pnpm run dev:agent    # Backend Agent (FastAPI)
+```
+
+### 3️⃣ Open the App
+
+1. Visit: http://localhost:3000
+2. Paste any public Solana wallet address and click "Analyze Wallet"
+3. Try these demo addresses:
+   - [FksffEqnBRixYGR791Qw2MgdU7zNCpHVFYBL4Fa4qVuH](https://solscan.io/address/FksffEqnBRixYGR791Qw2MgdU7zNCpHVFYBL4Fa4qVuH)
+   - [Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE](https://solscan.io/address/Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE)
+   - [9d9mb8kooFfaD3SctgZtkxQypkshx6ezhbKio89ixyy2](https://solscan.io/address/9d9mb8kooFfaD3SctgZtkxQypkshx6ezhbKio89ixyy2)
+
+## 🧪 Simulate Alerts Locally
+
+To simulate a high-risk alert in your backend (for demo):
+
+```bash
+python backend/test_connection.py --simulate-alert
+```
+
+This triggers a WebSocket broadcast → your dashboard will show a live alert notification.
+
+## 🚀 Deployment
+
+### Docker Build & Run
+
+```bash
+# Build the Docker image
+docker build -t yourusername/agent-challenge .
+
+# Run the container
+docker run -p 3000:3000 yourusername/agent-challenge:latest 
+
+# Push to Docker Hub
+docker login
+docker push yourusername/agent-challenge:latest
+```
+
+### Nosana Deployment
+
+1. Set up your Nosana account and install the CLI
+2. Configure your project:
+   ```bash
+   nosana init
+   ```
+3. Deploy your agent:
+   ```bash
+   nosana deploy
+   ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ by the Nosana Community
+- Powered by Mastra Agents
+- Special thanks to all contributors
 
 **Your Mission:** Build an intelligent AI agent with a frontend interface and deploy it on Nosana's decentralized network.
 

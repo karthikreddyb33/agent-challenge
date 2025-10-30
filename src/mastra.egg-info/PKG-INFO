@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: mastra
+Version: 0.1
+Requires-Python: >=3.7
+License-File: LICENSE
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: aiohttp
+Requires-Dist: pydantic
