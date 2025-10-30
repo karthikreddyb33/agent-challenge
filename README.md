@@ -8,28 +8,77 @@ Built for Nosana Agents 102 Challenge
 Solana DeFi Sentinel is an intelligent AI agent that continuously monitors Solana wallets to detect risks like rug pulls, liquidity drains, and suspicious token behavior.
 Powered by Mastra Agents, FastAPI, and Next.js, it performs real-time on-chain analysis with explainable AI — fully containerized and deployable on the Nosana decentralized compute network.
 
-🧩 Architecture
- ┌────────────────────────────┐
- │        Frontend (Next.js)  │
- │ Tailwind UI + Wallet Form  │
- │ Risk Dashboard + Charts    │
- └────────────┬───────────────┘
-              │ REST / WS
- ┌────────────▼───────────────┐
- │     Backend (FastAPI)      │
- │  Mastra Agent Orchestration│
- │  ├─ Transaction Monitor     │
- │  ├─ Token Forensics         │
- │  └─ Risk Advisor (AI)       │
- └────────────┬───────────────┘
-              │ MCP Tools
- ┌────────────▼───────────────┐
- │ Solana Data Fetcher        │
- │ Liquidity Checker          │
- │ Contract Scanner           │
- └────────────┬───────────────┘
-              │
-       Solana RPC / APIs
+:
+
+🧩 Architecture Flow (Step-by-Step)
+
+🎨 Frontend (Next.js + Tailwind CSS)
+
+Displays wallet input form and “Analyze Wallet” button.
+
+Renders dashboard with:
+
+Trust Score gauge
+
+Risk Level indicator
+
+Token risk table
+
+Transaction activity chart
+
+Communicates with backend via REST API and WebSocket.
+
+⚙️ Backend (FastAPI + Mastra Framework)
+
+Coordinates all AI agents and data processing.
+
+Core components:
+
+Transaction Monitor → Tracks on-chain activity.
+
+Token Forensics → Analyzes token authenticity and liquidity.
+
+Risk Advisor (AI) → Aggregates scores and explains risk level.
+
+Handles REST endpoints like /api/analyze_wallet and /api/explain.
+
+🧠 Mastra MCP Tools
+
+Specialized blockchain intelligence modules:
+
+Solana Data Fetcher → Pulls wallet transactions and token info.
+
+Liquidity Checker → Checks token liquidity and volume stability.
+
+Contract Scanner → Verifies smart contracts and detects scams.
+
+🌐 Solana RPC / External APIs
+
+Provides blockchain data (transactions, token metadata, prices).
+
+Can use public or private RPC endpoints.
+
+Acts as the data backbone for MCP tools and AI analysis.
+
+🪄 AI Inference & Risk Analysis
+
+Combines fetched data + model reasoning to produce:
+
+Trust Score (0–100)
+
+Risk Category (Low / Medium / High)
+
+Summary explanation and recommendations.
+
+📊 Response Handling
+
+Backend returns analyzed JSON response to frontend.
+
+Frontend updates dashboard visuals dynamically.
+
+🚨 Real-Time Monitoring (Optional)
+
+WebSocket channel streams live risk alerts for suspicious activity.
 
 ⚙️ Tech Stack
 Layer	Technology
