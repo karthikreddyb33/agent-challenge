@@ -21,6 +21,7 @@ export default function HomePage() {
 
     setIsAnalyzing(true);
     setError(null);
+    setAnalysisResult(null);
     
     try {
       // Add timestamp to prevent caching
@@ -50,19 +51,62 @@ export default function HomePage() {
         responseData = JSON.parse(responseText);
       } catch (e) {
         console.error('Failed to parse response as JSON:', responseText);
-        throw new Error('Invalid response from server');
+        throw new Error('Invalid response from server. Please try again.');
       }
 
       if (!response.ok) {
         console.error('API Error:', response.status, responseData);
-        const errorMessage = responseData?.error || 
-                           responseData?.message || 
-                           (responseData?.details ? `Error: ${responseData.details}` : 'Unknown error occurred');
+        let errorMessage = 'An error occurred while analyzing the wallet';
         
-        const error = new Error(errorMessage);
-        (error as any).status = response.status;
-        (error as any).details = responseData;
-        throw error;
+        if (responseData?.error) {
+          errorMessage = responseData.error;
+          if (responseData.details) {
+            errorMessage += `: ${responseData.details}`;
+          }
+        } else if (response.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 400) {
+          errorMessage = 'Invalid request. Please check the wallet address and try again.';
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Process the token_forensics to ensure it's in the correct format
+      if (responseData.detailed?.token_forensics) {
+        const processedTokenForensics: Record<string, any> = {};
+        
+        // Handle case where token_forensics is an object with string keys
+        Object.entries(responseData.detailed.token_forensics).forEach(([key, value]) => {
+          try {
+            // If the key looks like a JSON string, try to parse it
+            if (key.startsWith('{') && key.endsWith('}')) {
+              try {
+                const tokenInfo = JSON.parse(key);
+                const address = tokenInfo.mint || key;
+                processedTokenForensics[address] = {
+                  ...(value as object),
+                  name: tokenInfo.name || 'Unknown',
+                  symbol: tokenInfo.symbol || 'UNKNOWN',
+                  logo: tokenInfo.logo
+                };
+              } catch (e) {
+                console.warn('Failed to parse token info as JSON:', key, e);
+                processedTokenForensics[key] = value;
+              }
+            } else {
+              processedTokenForensics[key] = value;
+            }
+          } catch (e) {
+            console.warn('Error processing token info:', key, e);
+            processedTokenForensics[key] = {
+              ...(value as object),
+              error: 'Failed to process token data'
+            };
+          }
+        });
+        
+        responseData.detailed.token_forensics = processedTokenForensics;
       }
 
       console.log('Analysis result:', responseData);
@@ -84,32 +128,84 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] p-4 md:p-8">
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-6 text-white">
         <h1 className="text-3xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-          Welcome to Nosana
+          Solana DeFi Sentinel
         </h1>
+        <p className="text-center text-white/70 mb-8">AI-Powered Wallet Risk Analysis</p>
         
         {/* Wallet Input */}
         <div className="mb-8">
           <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <input
                 type="text"
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 placeholder="Enter Solana wallet address"
-                className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/60"
+                className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/60 pr-12"
               />
+              {walletAddress && (
+                <button
+                  onClick={() => setWalletAddress('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                  aria-label="Clear"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              )}
             </div>
-            <button
-              onClick={analyzeWallet}
-              disabled={isAnalyzing}
-              className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                isAnalyzing
-                  ? 'bg-gray-600 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transform hover:scale-105'
-              }`}
-            >
-              {isAnalyzing ? 'Analyzing...' : 'Analyze Wallet'}
-            </button>
+            <div className="relative group">
+              <button
+                onClick={analyzeWallet}
+                disabled={isAnalyzing}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  isAnalyzing
+                    ? 'bg-purple-700 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transform hover:scale-105'
+                }`}
+              >
+                {isAnalyzing ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing...
+                  </div>
+                ) : (
+                  'Analyze Wallet'
+                )}
+              </button>
+              <div className="absolute right-0 mt-2 w-64 bg-white/90 text-gray-800 rounded-lg shadow-xl overflow-hidden z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1">
+                <div className="p-2 text-sm">
+                  <p className="font-medium text-gray-900 mb-2">Try these demo wallets:</p>
+                  <ul className="space-y-1">
+                    {[
+                      { address: 'FksffEqnBRixYGR791Qw2MgdU7zNCpHVFYBL4Fa4qVuH', name: 'Demo Wallet 1' },
+                      { address: 'Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE', name: 'Demo Wallet 2' },
+                      { address: '9d9mb8kooFfaD3SctgZtkxQypkshx6ezhbKio89ixyy2', name: 'Demo Wallet 3' },
+                    ].map((wallet, index) => (
+                      <li key={index}>
+                        <button
+                          onClick={() => {
+                            setWalletAddress(wallet.address);
+                            setAnalysisResult(null);
+                            setError(null);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md text-sm flex items-center justify-between group"
+                        >
+                          <span className="truncate">{wallet.name}</span>
+                          <span className="ml-2 text-xs opacity-70 group-hover:opacity-100">
+                            {wallet.address.slice(0, 4)}...{wallet.address.slice(-4)}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
           {error && <p className="mt-2 text-red-400 text-sm">{error}</p>}
         </div>

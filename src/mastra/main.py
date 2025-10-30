@@ -46,36 +46,71 @@ async def health_check():
 async def analyze_wallet(request: Request):
     try:
         # Parse the request body manually to avoid Pydantic validation issues
-        body = await request.json()
-        wallet = body.get('wallet')
-        
-        if not wallet:
+        try:
+            body = await request.json()
+            wallet = body.get('wallet')
+        except json.JSONDecodeError as je:
+            print(f"[ERROR] Invalid JSON in request: {str(je)}")
             raise HTTPException(
                 status_code=400,
-                detail={"error": "Wallet address is required", "details": "No wallet address provided in the request body"}
+                detail={"error": "Invalid request", "details": "Request body must be valid JSON"}
+            )
+        
+        if not wallet or not isinstance(wallet, str) or len(wallet) < 20:  # Basic validation
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "Invalid wallet address", "details": "A valid wallet address is required"}
             )
             
         print(f"[DEBUG] Received request to analyze wallet: {wallet}")
-        result = await coordinator_agent(wallet)
-        return result
-    except json.JSONDecodeError as je:
-        print(f"[ERROR] Invalid JSON in request: {str(je)}")
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "Invalid request", "details": "Request body must be valid JSON"}
-        )
+        
+        try:
+            result = await coordinator_agent(wallet)
+            # Ensure we have all required fields in the response
+            if not all(key in result for key in ["wallet", "combined_summary", "detailed"]):
+                raise ValueError("Incomplete analysis result from coordinator_agent")
+                
+            # Ensure token_forensics is properly formatted
+            if "token_forensics" in result.get("detailed", {}):
+                for addr, token in result["detailed"]["token_forensics"].items():
+                    if not isinstance(token, dict):
+                        result["detailed"]["token_forensics"][addr] = {
+                            "risk_score": 0,
+                            "name": "Unknown",
+                            "symbol": "UNKNOWN",
+                            "liquidity": "Unknown",
+                            "holders": 0,
+                            "is_verified": False,
+                            "reason": "Error processing token data"
+                        }
+            
+            return result
+            
+        except Exception as e:
+            print(f"[ERROR] Error in coordinator_agent: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "error": "Analysis failed",
+                    "details": str(e),
+                    "type": type(e).__name__
+                }
+            )
+            
     except HTTPException as he:
         # Re-raise HTTP exceptions as-is
         raise he
     except Exception as e:
         import traceback
-        error_msg = f"Error analyzing wallet: {str(e)}\n{traceback.format_exc()}"
+        error_msg = f"Unexpected error in analyze_wallet: {str(e)}\n{traceback.format_exc()}"
         print(f"[ERROR] {error_msg}")
         raise HTTPException(
             status_code=500,
             detail={
-                "error": "Failed to analyze wallet",
-                "details": str(e),
+                "error": "Internal server error",
+                "details": "An unexpected error occurred",
                 "type": type(e).__name__
             }
         )
