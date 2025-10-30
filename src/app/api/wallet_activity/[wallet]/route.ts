@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { wallet: string } }
+  request: NextRequest,
+  context: { params: { wallet: string } }
 ) {
   try {
-    const { wallet } = params;
-    
+    const { wallet } = context.params;
+
     if (!wallet) {
       return NextResponse.json(
         { error: 'Wallet address is required' },
