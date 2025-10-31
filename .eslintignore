@@ -1,0 +1,5 @@
+.next
+node_modules
+.mastra
+*.d.ts
+*.js

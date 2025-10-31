@@ -1,12 +1,9 @@
-import { Mastra } from "@mastra/core/mastra";
-import { ConsoleLogger } from "@mastra/core/logger";
-
-// Client-side version of the mastra module
-export const mastra = new Mastra({
+// Simple client-side version of the mastra module
+export const mastra = {
   agents: {},
   mcpServers: {},
   storage: {
-    get: async () => null,
+    get: async () => ({}),
     set: async () => {},
     delete: async () => {},
     clear: async () => {},
@@ -16,18 +13,23 @@ export const mastra = new Mastra({
     has: async () => false,
     size: async () => 0,
   },
-  logger: new ConsoleLogger({ level: 'info' }),
+  logger: {
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    debug: () => {},
+  },
   pubsub: {
     subscribe: () => () => {},
-    publish: async () => {},
+    publish: () => {},
   },
   telemetry: {
-    track: async () => {},
-    identify: async () => {},
-    flush: async () => {},
+    track: () => {},
+    identify: () => {},
+    flush: () => {},
   },
   memory: {
-    get: () => ({}),
+    get: () => {},
     set: () => {},
     clear: () => {},
   },
@@ -39,8 +41,5 @@ export const mastra = new Mastra({
   services: {},
   state: {},
   utils: {},
-  version: '0.0.0',
-  // Add any other required properties with default values
-  // to match the Mastra interface
-  // ...
-} as any; // Using 'any' as a temporary workaround for the complex type
+  version: '0.0.0'
+} as const;

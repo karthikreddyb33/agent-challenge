@@ -1,6 +1,7 @@
 import os
 import asyncio
 import sys
+import time
 from typing import Dict, Any
 
 # Import from mastra.tools with absolute path
@@ -128,7 +129,8 @@ async def coordinator_agent(wallet_address: str) -> Dict[str, Any]:
 
 Risk Assessment: {risk_level} ({dynamic_risk_score}/100)
 
-This wallet shows {risk_level.lower()} risk indicators based on our analysis. {"""
+This wallet shows {risk_level.lower()} risk indicators based on our analysis.
+"""
     
     if risk_level == "LOW":
         llm_summary += "No significant issues detected in the wallet's activity or token holdings."
@@ -137,7 +139,7 @@ This wallet shows {risk_level.lower()} risk indicators based on our analysis. {"
     else:
         llm_summary += "Multiple high-risk indicators were detected. Exercise caution when interacting with this wallet."
     
-    llm_summary += f"""}
+    llm_summary += f"""
 
 Last Updated: {time.ctime(current_time)}
 Analysis ID: {wallet_hash}-{current_time}"""
